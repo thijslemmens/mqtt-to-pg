@@ -15,7 +15,11 @@ repositories {
 
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter'
-	implementation "org.springframework.integration:spring-integration-mqtt:5.5.8"
+	implementation 'org.springframework.integration:spring-integration-mqtt'
+	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+	implementation 'org.springframework.integration:spring-integration-jdbc'
+	runtimeOnly group: 'org.postgresql', name: 'postgresql', version: '42.3.2'
+
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 

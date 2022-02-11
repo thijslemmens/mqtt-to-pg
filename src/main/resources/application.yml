@@ -1,0 +1,5 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5555/iot
+    username: mqtt_to_pg
+    password: mqtt_to_pg
