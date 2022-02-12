@@ -12,3 +12,10 @@ services:
       - POSTGRES_USER=mqtt_to_pg
       - POSTGRES_PASSWORD=mqtt_to_pg
       - POSTGRES_DB=iot
+
+  grafana:
+    image: grafana/grafana-oss
+    ports:
+      - 3000:3000
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning

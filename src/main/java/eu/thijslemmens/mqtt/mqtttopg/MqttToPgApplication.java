@@ -27,14 +27,14 @@ public class MqttToPgApplication {
 
     private MessageHandler postgresqlMessageHandler(DataSource dataSource) {
         JdbcMessageHandler jdbcMessageHandler = new JdbcMessageHandler(dataSource,
-                "INSERT INTO metrics (time, name, value, labels, unit) VALUES (?, ?, ?, ?, ?)");
+                "INSERT INTO metrics (time, name, value, labels, unit) VALUES (?, ?, ?, ?, ?) ON CONFLICT DO NOTHING");
         jdbcMessageHandler.setPreparedStatementSetter((ps, m) -> {
             Metric metric = (Metric) m.getPayload();
             ps.setTimestamp(1, Timestamp.valueOf(metric.timestamp()));
             ps.setString(2, metric.name());
             ps.setDouble(3, metric.value());
-            ps.setObject(4, null);
-            ps.setString(5, null);
+            ps.setObject(4, metric.labels());
+            ps.setString(5, metric.unit());
         });
         return jdbcMessageHandler;
     }
