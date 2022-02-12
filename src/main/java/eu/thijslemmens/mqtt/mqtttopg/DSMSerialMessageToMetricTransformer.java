@@ -76,7 +76,7 @@ public class DSMSerialMessageToMetricTransformer implements GenericTransformer<M
 
         Matcher voltageMatcher = ELECTRICITY_VOLTAGE_PATTERN.matcher(payload);
         if (voltageMatcher.find()) {
-            String voltage = powerMatcher.group("voltage");
+            String voltage = voltageMatcher.group("voltage");
             logger.debug("Voltage: {}", voltage);
             return Optional.of(new Metric("electricity.voltage", Double.parseDouble(voltage), timestamp, Map.of(), "V"));
         }

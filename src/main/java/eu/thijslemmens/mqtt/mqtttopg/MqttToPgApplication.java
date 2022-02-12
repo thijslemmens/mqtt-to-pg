@@ -5,6 +5,7 @@ import java.util.Optional;
 import javax.sql.DataSource;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.integration.dsl.IntegrationFlow;
 import org.springframework.integration.dsl.IntegrationFlows;
@@ -13,6 +14,7 @@ import org.springframework.integration.mqtt.inbound.MqttPahoMessageDrivenChannel
 import org.springframework.messaging.MessageHandler;
 
 @SpringBootApplication
+@EnableConfigurationProperties(MqttToPgConfiguration.class)
 public class MqttToPgApplication {
 
     public static void main(String[] args) {
@@ -20,9 +22,9 @@ public class MqttToPgApplication {
     }
 
     @Bean
-    public MqttPahoMessageDrivenChannelAdapter p1MonitorEndpoint() {
-        return new MqttPahoMessageDrivenChannelAdapter("tcp://192.168.0.23:1883",
-                "testClient", "tele/p1monitor/RESULT");
+    public MqttPahoMessageDrivenChannelAdapter p1MonitorEndpoint(MqttToPgConfiguration configuration) {
+        return new MqttPahoMessageDrivenChannelAdapter(configuration.getMqttUrl(),
+                configuration.getMqttClientId(), configuration.getMqttTopic());
     }
 
     private MessageHandler postgresqlMessageHandler(DataSource dataSource) {
@@ -40,8 +42,8 @@ public class MqttToPgApplication {
     }
 
     @Bean
-    public IntegrationFlow mqttInbound(DataSource dataSource) {
-        return IntegrationFlows.from(p1MonitorEndpoint())
+    public IntegrationFlow mqttInbound(DataSource dataSource, MqttPahoMessageDrivenChannelAdapter mqttPahoMessageDrivenChannelAdapter) {
+        return IntegrationFlows.from(mqttPahoMessageDrivenChannelAdapter)
                 .transform(new DSMSerialMessageToMetricTransformer())
                 .filter((Optional<Metric> optionalMetric) -> optionalMetric.isPresent())
                 .transform((Optional<Metric> optionalMetric) -> optionalMetric.get())

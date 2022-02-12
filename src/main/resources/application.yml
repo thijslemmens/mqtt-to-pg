@@ -3,3 +3,8 @@ spring:
     url: jdbc:postgresql://localhost:5555/iot
     username: mqtt_to_pg
     password: mqtt_to_pg
+
+mqtt-to-pg:
+  mqtt-client-id: mqtt-to-pg
+  mqtt-topic: tele/p1monitor/RESULT
+  mqtt-url: tcp://192.168.0.23:1883
