@@ -26,6 +26,102 @@
   "liveNow": false,
   "panels": [
     {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 14,
+      "panels": [],
+      "title": "15 minute resolution",
+      "type": "row"
+    },
+    {
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "semi-dark-orange",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "kwatth"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 5,
+        "x": 0,
+        "y": 1
+      },
+      "id": 19,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "value"
+      },
+      "pluginVersion": "8.3.6",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PBB52844FED527F01"
+          },
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  now() as time,\n  (max(gasmeter) - min(gasmeter)) * 10.2119\nFROM gas_5min\nWHERE\n  $__timeFilter(time_5min)\nORDER BY 1",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "gasmeter"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "gas_5min",
+          "timeColumn": "time_5min",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "transparent": true,
+      "type": "stat"
+    },
+    {
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -34,10 +130,10 @@
           "custom": {
             "axisLabel": "",
             "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
+            "barAlignment": 1,
+            "drawStyle": "bars",
+            "fillOpacity": 62,
+            "gradientMode": "hue",
             "hideFrom": {
               "legend": false,
               "tooltip": false,
@@ -72,17 +168,34 @@
                 "value": 80
               }
             ]
-          }
+          },
+          "unit": "watt"
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "gas"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "semi-dark-orange",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
-        "h": 8,
-        "w": 24,
-        "x": 0,
-        "y": 0
+        "h": 7,
+        "w": 19,
+        "x": 5,
+        "y": 1
       },
-      "id": 6,
+      "id": 16,
       "options": {
         "legend": {
           "calcs": [],
@@ -90,7 +203,7 @@
           "placement": "bottom"
         },
         "tooltip": {
-          "mode": "single"
+          "mode": "multi"
         }
       },
       "targets": [
@@ -102,289 +215,40 @@
           "format": "time_series",
           "group": [],
           "metricColumn": "none",
-          "rawQuery": false,
-          "rawSql": "SELECT\n  \"time\" AS \"time\",\n  value\nFROM metrics\nWHERE\n  $__timeFilter(\"time\") AND\n  name = 'gas.meter'\nORDER BY 1",
+          "rawQuery": true,
+          "rawSql": "select time,\nround(((gas - lag(gas) over (order by time))*4*10.2119)::numeric, 3)*1000  ::integer as gas\nfrom\n(select time_bucket_gapfill('15 minute'::interval, time_5min) as time,\n interpolate(max(gasMeter)) as gas\n from gas_5min where time_5min between '2022-02-14 14:00:00' and now() group by 1) as gapfill\nWHERE\n  $__timeFilter(time)\nORDER BY 1",
           "refId": "A",
           "select": [
             [
               {
                 "params": [
-                  "value"
+                  "gasmeter"
                 ],
                 "type": "column"
               }
             ]
           ],
-          "table": "metrics",
-          "timeColumn": "\"time\"",
+          "table": "gas_5min",
+          "timeColumn": "time_5min",
           "timeColumnType": "timestamp",
           "where": [
             {
               "name": "$__timeFilter",
               "params": [],
               "type": "macro"
-            },
-            {
-              "datatype": "text",
-              "name": "",
-              "params": [
-                "name",
-                "=",
-                "'gas.meter'"
-              ],
-              "type": "expression"
             }
           ]
         }
       ],
-      "title": "Gas meter",
+      "title": "GAS",
+      "transparent": true,
       "type": "timeseries"
     },
     {
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "bars",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "kwatt"
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "out"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "dark-green",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "in"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "dark-red",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          }
-        ]
-      },
-      "gridPos": {
-        "h": 10,
-        "w": 24,
-        "x": 0,
-        "y": 8
-      },
-      "id": 4,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom"
-        },
-        "tooltip": {
-          "mode": "single"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "postgres",
-            "uid": "PBB52844FED527F01"
-          },
-          "format": "time_series",
-          "group": [],
-          "metricColumn": "labels->'direction'",
-          "rawQuery": false,
-          "rawSql": "SELECT\n  \"time\" AS \"time\",\n  labels->'direction' AS metric,\n  -value\nFROM metrics\nWHERE\n  $__timeFilter(\"time\") AND\n  name = 'electricity.power' AND\n  labels->'direction' = 'in'\nORDER BY 1,2",
-          "refId": "A",
-          "select": [
-            [
-              {
-                "params": [
-                  "-value"
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "table": "metrics",
-          "timeColumn": "\"time\"",
-          "timeColumnType": "timestamp",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            },
-            {
-              "datatype": "text",
-              "name": "",
-              "params": [
-                "name",
-                "=",
-                "'electricity.power'"
-              ],
-              "type": "expression"
-            },
-            {
-              "name": "",
-              "params": [
-                "labels->'direction'",
-                "=",
-                "'in'"
-              ],
-              "type": "expression"
-            }
-          ]
-        },
-        {
-          "datasource": {
-            "type": "postgres",
-            "uid": "PBB52844FED527F01"
-          },
-          "format": "time_series",
-          "group": [],
-          "hide": false,
-          "metricColumn": "labels->'direction'",
-          "rawQuery": false,
-          "rawSql": "SELECT\n  \"time\" AS \"time\",\n  labels->'direction' AS metric,\n  value\nFROM metrics\nWHERE\n  $__timeFilter(\"time\") AND\n  name = 'electricity.power' AND\n  labels->'direction' = 'out'\nORDER BY 1,2",
-          "refId": "B",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "table": "metrics",
-          "timeColumn": "\"time\"",
-          "timeColumnType": "timestamp",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            },
-            {
-              "datatype": "text",
-              "name": "",
-              "params": [
-                "name",
-                "=",
-                "'electricity.power'"
-              ],
-              "type": "expression"
-            },
-            {
-              "name": "",
-              "params": [
-                "labels->'direction'",
-                "=",
-                "'out'"
-              ],
-              "type": "expression"
-            }
-          ]
-        }
-      ],
-      "title": "Electricity input/output",
-      "transformations": [],
-      "type": "timeseries"
-    },
-    {
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "lineInterpolation": "linear",
-            "lineStyle": {
-              "fill": "solid"
-            },
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "normal"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
+            "mode": "thresholds"
           },
           "mappings": [],
           "thresholds": {
@@ -404,25 +268,29 @@
         },
         "overrides": [
           {
-            "__systemRef": "hideSeriesFrom",
             "matcher": {
-              "id": "byNames",
-              "options": {
-                "mode": "exclude",
-                "names": [
-                  "low"
-                ],
-                "prefix": "All except:",
-                "readOnly": true
-              }
+              "id": "byName",
+              "options": "in"
             },
             "properties": [
               {
-                "id": "custom.hideFrom",
+                "id": "color",
                 "value": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": true
+                  "mode": "continuous-GrYlRd"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "out"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "continuous-GrYlRd"
                 }
               }
             ]
@@ -430,12 +298,153 @@
         ]
       },
       "gridPos": {
-        "h": 10,
-        "w": 24,
+        "h": 8,
+        "w": 5,
         "x": 0,
-        "y": 18
+        "y": 8
       },
-      "id": 2,
+      "id": 21,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {
+          "titleSize": 70,
+          "valueSize": 60
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "8.3.6",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PBB52844FED527F01"
+          },
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  now() as \"time\",\n  max(meter_in) - min(meter_in) as in,\n  max(meter_out) -  min(meter_out) as out\nFROM electricity_1min\nwhere\n$__timeFilter(time_1min)\nORDER BY 1",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "gasmeter"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "electricity_1min",
+          "timeColumn": "time_5min",
+          "timeColumnType": "timestamp",
+          "where": []
+        }
+      ],
+      "transparent": true,
+      "type": "stat"
+    },
+    {
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 1,
+            "drawStyle": "bars",
+            "fillOpacity": 81,
+            "gradientMode": "opacity",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "watt"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "in"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "dark-red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "out"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "dark-green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 19,
+        "x": 5,
+        "y": 8
+      },
+      "id": 17,
       "options": {
         "legend": {
           "calcs": [],
@@ -443,7 +452,7 @@
           "placement": "bottom"
         },
         "tooltip": {
-          "mode": "single"
+          "mode": "multi"
         }
       },
       "targets": [
@@ -454,57 +463,684 @@
           },
           "format": "time_series",
           "group": [],
-          "metricColumn": "labels->'tariff'",
-          "rawQuery": false,
-          "rawSql": "SELECT\n  \"time\" AS \"time\",\n  labels->'tariff' AS metric,\n  value\nFROM metrics\nWHERE\n  $__timeFilter(\"time\") AND\n  labels->'direction' = 'in' AND\n  name = 'electricity.meter'\nORDER BY 1,2",
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "select time,\nround((meter_in_interpol - lag(meter_in_interpol) over (order by time))::numeric, 3) *1000*4 :: integer as in,\n-round((meter_out_interpol - lag(meter_out_interpol) over (order by time))::numeric, 3) *1000*4 :: integer as out\nfrom\n(select time_bucket_gapfill('15 minute'::interval, time_1min) as time,\n interpolate(max(meter_in)) as meter_in_interpol,\n interpolate(max(meter_out)) as meter_out_interpol\n from electricity_1min where time_1min between '2022-02-14 14:00:00' and now() group by 1) as gapfill\nWHERE\n  $__timeFilter(time)\nORDER BY 1",
           "refId": "A",
           "select": [
             [
               {
                 "params": [
-                  "value"
+                  "meter"
                 ],
                 "type": "column"
               }
             ]
           ],
-          "table": "metrics",
-          "timeColumn": "\"time\"",
-          "timeColumnType": "timestamp",
+          "table": "electricity_in_1min",
+          "timeColumn": "time_1min",
+          "timeColumnType": "timestamptz",
           "where": [
             {
               "name": "$__timeFilter",
               "params": [],
               "type": "macro"
-            },
-            {
-              "datatype": "hstore",
-              "name": "",
-              "params": [
-                "labels->'direction'",
-                "=",
-                "'in'"
-              ],
-              "type": "expression"
-            },
-            {
-              "datatype": "text",
-              "name": "",
-              "params": [
-                "name",
-                "=",
-                "'electricity.meter'"
-              ],
-              "type": "expression"
             }
           ]
         }
       ],
-      "title": "ElectricityMeter",
+      "title": "ELECTRICITY",
+      "transparent": true,
       "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 16
+      },
+      "id": 12,
+      "panels": [],
+      "title": "1 minute resolution",
+      "type": "row"
+    },
+    {
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 1,
+            "drawStyle": "bars",
+            "fillOpacity": 81,
+            "gradientMode": "opacity",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "watt"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "in"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "dark-red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "out"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "dark-green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 17
+      },
+      "id": 8,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PBB52844FED527F01"
+          },
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "select time,\nround((meter_in_interpol - lag(meter_in_interpol) over (order by time))::numeric, 3) *1000*60 :: integer as in,\n-round((meter_out_interpol - lag(meter_out_interpol) over (order by time))::numeric, 3) *1000*60 :: integer as out\nfrom\n(select time_bucket_gapfill('1 minute'::interval, time_1min) as time,\n interpolate(max(meter_in)) as meter_in_interpol,\n interpolate(max(meter_out)) as meter_out_interpol\n from electricity_1min where time_1min between '2022-02-14 14:00:00' and now() group by 1) as gapfill\nWHERE\n  $__timeFilter(time)\nORDER BY 1",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "meter"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "electricity_in_1min",
+          "timeColumn": "time_1min",
+          "timeColumnType": "timestamptz",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Power input/output",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": true,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 25
+      },
+      "id": 10,
+      "panels": [
+        {
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "decimals": 3,
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "m3"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 24,
+            "x": 0,
+            "y": 26
+          },
+          "id": 6,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom"
+            },
+            "tooltip": {
+              "mode": "single"
+            }
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "postgres",
+                "uid": "PBB52844FED527F01"
+              },
+              "format": "time_series",
+              "group": [],
+              "metricColumn": "none",
+              "rawQuery": false,
+              "rawSql": "SELECT\n  \"time\" AS \"time\",\n  value\nFROM metrics\nWHERE\n  $__timeFilter(\"time\") AND\n  name = 'gas.meter'\nORDER BY 1",
+              "refId": "A",
+              "select": [
+                [
+                  {
+                    "params": [
+                      "value"
+                    ],
+                    "type": "column"
+                  }
+                ]
+              ],
+              "table": "metrics",
+              "timeColumn": "\"time\"",
+              "timeColumnType": "timestamp",
+              "where": [
+                {
+                  "name": "$__timeFilter",
+                  "params": [],
+                  "type": "macro"
+                },
+                {
+                  "datatype": "text",
+                  "name": "",
+                  "params": [
+                    "name",
+                    "=",
+                    "'gas.meter'"
+                  ],
+                  "type": "expression"
+                }
+              ]
+            }
+          ],
+          "title": "Gas meter",
+          "type": "timeseries"
+        },
+        {
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "drawStyle": "bars",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "decimals": 3,
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "kwatt"
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "out"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "dark-green",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "in"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "dark-red",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "gridPos": {
+            "h": 6,
+            "w": 24,
+            "x": 0,
+            "y": 34
+          },
+          "id": 4,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom"
+            },
+            "tooltip": {
+              "mode": "multi"
+            }
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "postgres",
+                "uid": "PBB52844FED527F01"
+              },
+              "format": "time_series",
+              "group": [],
+              "metricColumn": "labels->'direction'",
+              "rawQuery": false,
+              "rawSql": "SELECT\n  \"time\" AS \"time\",\n  labels->'direction' AS metric,\n  value\nFROM metrics\nWHERE\n  $__timeFilter(\"time\") AND\n  name = 'electricity.power' AND\n  labels->'direction' = 'in'\nORDER BY 1,2",
+              "refId": "A",
+              "select": [
+                [
+                  {
+                    "params": [
+                      "value"
+                    ],
+                    "type": "column"
+                  }
+                ]
+              ],
+              "table": "metrics",
+              "timeColumn": "\"time\"",
+              "timeColumnType": "timestamp",
+              "where": [
+                {
+                  "name": "$__timeFilter",
+                  "params": [],
+                  "type": "macro"
+                },
+                {
+                  "datatype": "text",
+                  "name": "",
+                  "params": [
+                    "name",
+                    "=",
+                    "'electricity.power'"
+                  ],
+                  "type": "expression"
+                },
+                {
+                  "name": "",
+                  "params": [
+                    "labels->'direction'",
+                    "=",
+                    "'in'"
+                  ],
+                  "type": "expression"
+                }
+              ]
+            },
+            {
+              "datasource": {
+                "type": "postgres",
+                "uid": "PBB52844FED527F01"
+              },
+              "format": "time_series",
+              "group": [],
+              "hide": false,
+              "metricColumn": "labels->'direction'",
+              "rawQuery": false,
+              "rawSql": "SELECT\n  \"time\" AS \"time\",\n  labels->'direction' AS metric,\n  -value\nFROM metrics\nWHERE\n  $__timeFilter(\"time\") AND\n  name = 'electricity.power' AND\n  labels->'direction' = 'out'\nORDER BY 1,2",
+              "refId": "B",
+              "select": [
+                [
+                  {
+                    "params": [
+                      "-value"
+                    ],
+                    "type": "column"
+                  }
+                ]
+              ],
+              "table": "metrics",
+              "timeColumn": "\"time\"",
+              "timeColumnType": "timestamp",
+              "where": [
+                {
+                  "name": "$__timeFilter",
+                  "params": [],
+                  "type": "macro"
+                },
+                {
+                  "datatype": "text",
+                  "name": "",
+                  "params": [
+                    "name",
+                    "=",
+                    "'electricity.power'"
+                  ],
+                  "type": "expression"
+                },
+                {
+                  "name": "",
+                  "params": [
+                    "labels->'direction'",
+                    "=",
+                    "'out'"
+                  ],
+                  "type": "expression"
+                }
+              ]
+            }
+          ],
+          "title": "Electricity input/output",
+          "transformations": [],
+          "type": "timeseries"
+        },
+        {
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "lineInterpolation": "linear",
+                "lineStyle": {
+                  "fill": "solid"
+                },
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "normal"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "decimals": 4,
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "kwatth"
+            },
+            "overrides": [
+              {
+                "__systemRef": "hideSeriesFrom",
+                "matcher": {
+                  "id": "byNames",
+                  "options": {
+                    "mode": "exclude",
+                    "names": [
+                      "high"
+                    ],
+                    "prefix": "All except:",
+                    "readOnly": true
+                  }
+                },
+                "properties": [
+                  {
+                    "id": "custom.hideFrom",
+                    "value": {
+                      "legend": false,
+                      "tooltip": false,
+                      "viz": true
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "gridPos": {
+            "h": 7,
+            "w": 24,
+            "x": 0,
+            "y": 40
+          },
+          "id": 2,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom"
+            },
+            "tooltip": {
+              "mode": "multi"
+            }
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "postgres",
+                "uid": "PBB52844FED527F01"
+              },
+              "format": "time_series",
+              "group": [],
+              "metricColumn": "labels->'tariff'",
+              "rawQuery": false,
+              "rawSql": "SELECT\n  \"time\" AS \"time\",\n  labels->'tariff' AS metric,\n  value\nFROM metrics\nWHERE\n  $__timeFilter(\"time\") AND\n  labels->'direction' = 'in' AND\n  name = 'electricity.meter'\nORDER BY 1,2",
+              "refId": "A",
+              "select": [
+                [
+                  {
+                    "params": [
+                      "value"
+                    ],
+                    "type": "column"
+                  }
+                ]
+              ],
+              "table": "metrics",
+              "timeColumn": "\"time\"",
+              "timeColumnType": "timestamp",
+              "where": [
+                {
+                  "name": "$__timeFilter",
+                  "params": [],
+                  "type": "macro"
+                },
+                {
+                  "datatype": "hstore",
+                  "name": "",
+                  "params": [
+                    "labels->'direction'",
+                    "=",
+                    "'in'"
+                  ],
+                  "type": "expression"
+                },
+                {
+                  "datatype": "text",
+                  "name": "",
+                  "params": [
+                    "name",
+                    "=",
+                    "'electricity.meter'"
+                  ],
+                  "type": "expression"
+                }
+              ]
+            }
+          ],
+          "title": "ElectricityMeter",
+          "type": "timeseries"
+        }
+      ],
+      "title": "Raw data",
+      "type": "row"
     }
   ],
-  "refresh": "5s",
+  "refresh": false,
   "schemaVersion": 34,
   "style": "dark",
   "tags": [],
@@ -512,13 +1148,13 @@
     "list": []
   },
   "time": {
-    "from": "now-12h",
+    "from": "now-2d",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "",
   "title": "Energy",
   "uid": "y_VMzQa7z",
-  "version": 4,
+  "version": 24,
   "weekStart": ""
 }
