@@ -17,7 +17,7 @@ create index metrics_unit on metrics using btree (unit);
 
 SELECT create_hypertable('metrics', 'time');
 
-DROP MATERIALIZED VIEW electricity_1min;
+DROP MATERIALIZED VIEW if exists electricity_1min;
 CREATE MATERIALIZED VIEW electricity_1min
             WITH (timescaledb.continuous)
 AS
@@ -38,7 +38,7 @@ SELECT add_continuous_aggregate_policy('electricity_1min',
                                        end_offset => INTERVAL '2 minute',
                                        schedule_interval => INTERVAL '10 minutes');
 
-DROP MATERIALIZED VIEW gas_5min;
+DROP MATERIALIZED VIEW if exists gas_5min;
 CREATE MATERIALIZED VIEW gas_5min
             WITH (timescaledb.continuous)
 AS

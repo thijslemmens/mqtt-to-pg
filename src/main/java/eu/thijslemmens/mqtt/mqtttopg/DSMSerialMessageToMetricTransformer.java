@@ -20,10 +20,10 @@ public class DSMSerialMessageToMetricTransformer implements GenericTransformer<M
     private static final Pattern ELECTRICITY_POWER_PATTERN = Pattern.compile(
             "\\{\\\"SerialReceived\\\":\\\"1-0:(?<direction>1|2)\\.7\\.0\\((?<value>\\d{2}\\.\\d{3})\\*kW\\)\\\\r\\\"\\}");
     private static final Pattern TIMESTAMP_PATTERN = Pattern.compile(
-            "\\{\\\"SerialReceived\\\":\\\"0-0:1\\.0\\.0\\((?<timestamp>\\d{12})W\\)\\\\r\\\"\\}");
+            "\\{\\\"SerialReceived\\\":\\\"0-0:1\\.0\\.0\\((?<timestamp>\\d{12})(W|S)\\)\\\\r\\\"\\}");
     private static final DateTimeFormatter TIMESTAMP_FORMAT = DateTimeFormatter.ofPattern("yyMMddHHmmss");
     private static final Pattern GAS_METER_PATTERN = Pattern.compile(
-            "\\{\\\"SerialReceived\\\":\\\"0-1:24\\.2\\.3\\((?<timestamp>\\d{12})W\\)\\((?<volume>\\d{5}\\.\\d{3})\\*m3\\)\\\\r\\\"\\}");
+            "\\{\\\"SerialReceived\\\":\\\"0-1:24\\.2\\.3\\((?<timestamp>\\d{12})(W|S)\\)\\((?<volume>\\d{5}\\.\\d{3})\\*m3\\)\\\\r\\\"\\}");
     private static final Pattern ELECTRICITY_VOLTAGE_PATTERN = Pattern.compile("\\{\\\"SerialReceived\\\":\\\"1-0:32.7.0\\((?<voltage>\\d{3}\\.\\d)\\*V\\)\\\\r\\\"\\}");
     private static final Pattern ELECTRICITY_CURRENT_PATTERN = Pattern.compile("\\{\\\"SerialReceived\\\":\\\"1-0:31.7.0\\((?<current>\\d{3}\\.\\d{2})\\*A\\)\\\\r\\\"\\}");
 
