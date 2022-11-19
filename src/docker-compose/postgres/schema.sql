@@ -23,8 +23,8 @@ CREATE MATERIALIZED VIEW electricity_1min
 AS
 SELECT
     time_bucket('1 minute', time) AS time_1min,
-    round((max(case when (labels->'tariff'='high' and labels->'direction'='in') then value else 0 end) + max(case when (labels->'tariff'='low' and labels->'direction'='in') then value else 0 end))::numeric,3) AS meter_in,
-    round((max(case when (labels->'tariff'='high' and labels->'direction'='out') then value else 0 end) + max(case when (labels->'tariff'='low' and labels->'direction'='out') then value else 0 end))::numeric,3) AS meter_out
+    round((max(case when (labels->'tariff'='high' and labels->'direction'='in') then value else 0 end) + max(case when (labels->'tariff'='low' and labels->'direction'='in') then value else 0 end))::numeric,4) AS meter_in,
+    round((max(case when (labels->'tariff'='high' and labels->'direction'='out') then value else 0 end) + max(case when (labels->'tariff'='low' and labels->'direction'='out') then value else 0 end))::numeric,4) AS meter_out
 FROM
     metrics
 WHERE
