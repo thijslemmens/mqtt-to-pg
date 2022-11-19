@@ -1,6 +1,7 @@
 plugins {
 	id 'org.springframework.boot' version '2.7.5'
 	id 'io.spring.dependency-management' version '1.1.0'
+	id "com.google.cloud.tools.jib" version "3.3.1"
 	id 'java'
 	id 'maven-publish'
 }
@@ -45,6 +46,15 @@ publishing {
 		gpr(MavenPublication) {
 			artifact bootJar
 			artifactId bootJar.baseName
+		}
+	}
+}
+
+jib.from {
+	platforms {
+		platform {
+			architecture = 'arm64'
+			os = 'linux'
 		}
 	}
 }
