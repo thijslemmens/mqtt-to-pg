@@ -22,7 +22,7 @@ dependencies {
 	implementation 'org.springframework.integration:spring-integration-jdbc'
 	annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
 
-	runtimeOnly group: 'org.postgresql', name: 'postgresql', version: '42.5.0'
+	runtimeOnly group: 'org.postgresql', name: 'postgresql', version: '42.5.1'
 
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
