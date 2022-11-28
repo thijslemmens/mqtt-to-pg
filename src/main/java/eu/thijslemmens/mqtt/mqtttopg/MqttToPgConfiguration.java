@@ -1,7 +1,6 @@
 package eu.thijslemmens.mqtt.mqtttopg;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.Configuration;
 
 @ConfigurationProperties(prefix = "mqtt-to-pg")
 public class MqttToPgConfiguration {

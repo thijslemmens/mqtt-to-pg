@@ -1,0 +1,8 @@
+spring:
+  datasource:
+    url: jdbc:tc:postgresql://localhost:5555/iot
+
+mqtt-to-pg:
+  mqtt-client-id: mqtt-to-pg
+  mqtt-topic: tele/p1monitor/RESULT
+  mqtt-url: tcp://192.168.0.23:1883
