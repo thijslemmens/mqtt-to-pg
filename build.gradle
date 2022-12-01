@@ -51,11 +51,20 @@ publishing {
 	}
 }
 
-jib.from {
-	platforms {
-		platform {
-			architecture = 'arm64'
-			os = 'linux'
+jib {
+	from {
+		platforms {
+			platform {
+				architecture = project.property('architecture')
+				os = 'linux'
+			}
+			platform {
+				architecture = project.property('architecture')
+				os = 'linux'
+			}
 		}
+	}
+	to {
+		image = 'ghcr.io/thijslemmens/mqtt-to-pg/mqtt-to-pg:latest'
 	}
 }
