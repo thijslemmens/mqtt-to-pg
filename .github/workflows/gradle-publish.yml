@@ -40,7 +40,6 @@ jobs:
   pushImages:
     strategy:
       matrix:
-        architecture: [amd64, arm64]
         image: ['docker.io/thijslemmens/mqtt-to-pg:latest', 'ghcr.io/thijslemmens/mqtt-to-pg/mqtt-to-pg:latest']
     runs-on: ubuntu-latest
     steps:
@@ -70,4 +69,4 @@ jobs:
       - name: Build docker image
         uses: gradle/gradle-build-action@937999e9cc2425eddc7fd62d1053baf041147db7
         with:
-          arguments: jib -Parchitecture=${{ matrix.architecture }} -Pimage=${{ matrix.image }}
+          arguments: jib -Pimage=${{ matrix.image }}

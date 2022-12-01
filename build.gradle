@@ -55,11 +55,11 @@ jib {
 	from {
 		platforms {
 			platform {
-				architecture = project.property('architecture')
+				architecture = 'arm64'
 				os = 'linux'
 			}
 			platform {
-				architecture = project.property('architecture')
+				architecture = 'amd64'
 				os = 'linux'
 			}
 		}
