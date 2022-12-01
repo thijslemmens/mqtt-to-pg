@@ -65,6 +65,6 @@ jib {
 		}
 	}
 	to {
-		image = 'ghcr.io/thijslemmens/mqtt-to-pg/mqtt-to-pg:latest'
+		image = project.property('image')
 	}
 }

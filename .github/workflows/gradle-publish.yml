@@ -40,7 +40,8 @@ jobs:
   pushImages:
     strategy:
       matrix:
-        architecture: [amd64, arm64, armv7]
+        architecture: [amd64, arm64]
+        image: ['docker.io/thijslemmens/mqtt-to-pg:latest', 'ghcr.io/thijslemmens/mqtt-to-pg/mqtt-to-pg:latest']
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -52,14 +53,21 @@ jobs:
           server-id: github # Value of the distributionManagement/repository/id field of the pom.xml
           settings-path: ${{ github.workspace }} # location for the settings.xml file
 
-      - name: Log in to the Container registry
+      - name: Log in to the github registry
         uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
         with:
           registry: ghcr.io
           username: thijslemmens
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Log in to the docker hub registry
+        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+        with:
+          registry: docker.io
+          username: thijslemmens
+          password: ${{ secrets.DOCKER_HUB_TOKEN }}
+
       - name: Build docker image
         uses: gradle/gradle-build-action@937999e9cc2425eddc7fd62d1053baf041147db7
         with:
-          arguments: jib -Parchitecture=${{ matrix.architecture }}
+          arguments: jib -Parchitecture=${{ matrix.architecture }} -Pimage=${{ matrix.image }}
