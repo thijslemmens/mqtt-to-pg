@@ -7,4 +7,4 @@ spring:
 mqtt-to-pg:
   mqtt-client-id: mqtt-to-pg
   mqtt-topic: tele/p1monitor/RESULT
-  mqtt-url: tcp://192.168.0.23:1883
+  mqtt-url: tcp://192.168.0.22:32433

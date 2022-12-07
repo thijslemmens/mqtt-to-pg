@@ -5,8 +5,6 @@ services:
     image: docker.io/timescale/timescaledb:latest-pg14
     ports:
       - 5555:5432
-    volumes:
-      - ./postgres/schema.sql:/docker-entrypoint-initdb.d/schema.sql
     environment:
       - TIMESCALEDB_TELEMETRY=off
       - POSTGRES_USER=mqtt_to_pg

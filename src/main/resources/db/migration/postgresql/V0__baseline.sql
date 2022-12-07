@@ -2,12 +2,12 @@ CREATE EXTENSION IF NOT EXISTS timescaledb;
 CREATE EXTENSION IF NOT EXISTS hstore;
 
 CREATE TABLE metrics (
-    time TIMESTAMPTZ NOT NULL,
-    name TEXT NOT NULL,
-    value DOUBLE PRECISION NOT NULL,
-    labels hstore NULL,
-    unit text NULL,
-    UNIQUE (time, name, labels)
+                         time TIMESTAMPTZ NOT NULL,
+                         name TEXT NOT NULL,
+                         value DOUBLE PRECISION NOT NULL,
+                         labels hstore NULL,
+                         unit text NULL,
+                         UNIQUE (time, name, labels)
 );
 
 create index metrics_name on metrics using btree (name);
@@ -31,7 +31,7 @@ WHERE
         name = 'electricity.meter'
 GROUP BY
     time_1min
-WITH NO DATA;
+    WITH NO DATA;
 
 SELECT add_continuous_aggregate_policy('electricity_1min',
                                        start_offset => INTERVAL '10 minutes',
@@ -51,7 +51,7 @@ WHERE
         name = 'gas.meter'
 GROUP BY
     time_5min
-WITH NO DATA;
+    WITH NO DATA;
 
 SELECT add_continuous_aggregate_policy('gas_5min',
                                        start_offset => INTERVAL '1 hour',
