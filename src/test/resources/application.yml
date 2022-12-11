@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:tc:postgresql://localhost:5555/iot
+    url: jdbc:tc:timescaledb:latest-pg14:///iot
 
 mqtt-to-pg:
   mqtt-client-id: mqtt-to-pg
