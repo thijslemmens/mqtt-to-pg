@@ -24,7 +24,7 @@ dependencies {
 
 	annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
 
-	runtimeOnly group: 'org.postgresql', name: 'postgresql', version: '42.5.1'
+	runtimeOnly group: 'org.postgresql', name: 'postgresql', version: '42.5.4'
 
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.testcontainers:postgresql:1.17.6'
